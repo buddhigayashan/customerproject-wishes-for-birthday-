@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Happy Birthday Wasthu</title>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+}
+
+/* START SCREEN */
+#startScreen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 20;
+}
+
+#introText {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid #ff4d6d;
+  animation: typing 4s steps(30), blink .6s infinite;
+}
+
+@keyframes typing { from { width: 0; } to { width: 100%; } }
+@keyframes blink { 50% { border-color: transparent; } }
+
+#startBtn {
+  padding: 15px 35px;
+  background: #ff1e75;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  box-shadow: 0 0 20px #ff1e75;
+  color: white;
+  cursor: pointer;
+}
+
+/* SLIDESHOW */
+#photoArea {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#photoArea img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 90vh;
+  width: auto;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  transition: all 2s ease;
+}
+
+/* BUTTERFLIES 🦋 */
+.butterfly {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  background-image: url('https://i.ibb.co/6HCt1V2/butterfly.png');
+  background-size: cover;
+  animation: fly 12s linear infinite;
+  opacity: 0.9;
+}
+
+@keyframes fly {
+  0% { transform: translateX(-10vw) translateY(100vh) rotate(0deg); }
+  50% { transform: translateX(50vw) translateY(30vh) rotate(20deg); }
+  100% { transform: translateX(110vw) translateY(-10vh) rotate(0deg); }
+}
+
+/* HEARTS ❤️ */
+.heart {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  background-image: url('https://pngimg.com/uploads/heart/heart_PNG51337.png');
+  background-size: cover;
+  animation: rise 5s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes rise {
+  0% { transform: translateY(100vh) scale(0.4); }
+  100% { transform: translateY(-10vh) scale(1); }
+}
+
+/* SPARKLES ✨ */
+.sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: sparkleFloat 2s infinite;
+}
+
+@keyframes sparkleFloat {
+  0% { transform: scale(0.4); opacity: 0.4; }
+  50% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.4); opacity: 0; }
+}
+
+/* END MESSAGE */
+#endingMessage {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: black;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.8rem;
+  z-index: 30;
+}
+</style>
+</head>
+
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen">
+  <div id="introText">Happy Birthday My Wasthu ❤️</div>
+  <button id="startBtn">Tap to Begin</button>
+</div>
+
+<!-- SLIDESHOW -->
+<div id="photoArea"></div>
+
+<!-- END TEXT -->
+<div id="endingMessage">I Love You Forever ❤️</div>
+
+<!-- ONLY AUDIO -->
+<audio id="birthdaySong" src="photos/happy-birthday-258264.mp3"></audio>
+
+<script>
+/* PHOTOS */
+const photos = [
+  "photos/sanjuala1.jpg",
+  "photos/sanjuala2.jpg",
+  "photos/sanjuala3.jpg",
+  "photos/sanjuala4.jpg",
+  "photos/sanjuala5.jpg",
+  "photos/sanjuala6.jpg",
+  "photos/sanjuala7.jpg"
+];
+
+let index = 0;
+
+/* START BUTTON */
+document.getElementById("startBtn").onclick = () => {
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("birthdaySong").play();
+
+  createHearts();
+  createSparkles();
+  createButterflies();
+
+  showSlide();
+};
+
+/* RANDOM TRANSITIONS */
+const effects = [
+  "translate(-50%, -50%) translateX(-80vw)",   // left
+  "translate(-50%, -50%) translateX(80vw)",    // right
+  "translate(-50%, -50%) translateY(-80vh)",   // top
+  "translate(-50%, -50%) translateY(80vh)",    // bottom
+  "translate(-50%, -50%) scale(0.2)",          // zoom out
+  "translate(-50%, -50%) scale(2)",            // zoom in big
+  "translate(-50%, -50%) rotate(90deg)",       // rotate
+  "translate(-50%, -50%) rotate(-90deg)"       // rotate other way
+];
+
+/* SHOW SLIDE */
+function showSlide() {
+  const area = document.getElementById("photoArea");
+  area.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = photos[index];
+
+  // pick random start animation
+  const startEffect = effects[Math.floor(Math.random() * effects.length)];
+  img.style.transform = startEffect;
+
+  area.appendChild(img);
+
+  // animate to center
+  setTimeout(() => {
+    img.style.transform = "translate(-50%, -50%) scale(1)";
+  }, 50);
+
+  index++;
+
+  if (index >= photos.length) {
+    setTimeout(() => {
+      document.getElementById("endingMessage").style.display = "flex";
+    }, 4000);
+    return;
+  }
+
+  setTimeout(showSlide, 4000);
+}
+
+/* HEARTS */
+function createHearts() {
+  setInterval(() => {
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.style.left = Math.random() * 100 + "vw";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 6000);
+  }, 400);
+}
+
+/* SPARKLES */
+function createSparkles() {
+  setInterval(() => {
+    const s = document.createElement("div");
+    s.className = "sparkle";
+    s.style.left = (50 + (Math.random() * 30 - 15)) + "%";
+    s.style.top = (50 + (Math.random() * 30 - 15)) + "%";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 2000);
+  }, 200);
+}
+
+/* BUTTERFLIES 🦋 */
+function createButterflies() {
+  setInterval(() => {
+    const b = document.createElement("div");
+    b.className = "butterfly";
+    b.style.left = Math.random() * 10 + "vw";
+    document.body.appendChild(b);
+    setTimeout(() => b.remove(), 12000);
+  }, 3000);
+}
+</script>
+
+</body>
+</html>
