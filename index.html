@@ -11,18 +11,23 @@
 /* ==========================================================
    GLOBAL
 ========================================================== */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
   background: black;
-  /* Allow the UI to breathe on small screens */
-  overflow-x: hidden;
+  overflow: hidden;
   font-family: 'Poppins', sans-serif;
   color: white;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* ==========================================================
-   STARS + SMOOTH GRADIENT BACKGROUND  (FILTERED + CLEANED)
+   STARS + SMOOTH GRADIENT BACKGROUND
 ========================================================== */
 #stars, #colorBackground {
   position: fixed;
@@ -59,7 +64,47 @@ body {
 }
 
 /* ==========================================================
-   FRAME (ONLY FOR START SCREEN)
+   FLOATING HEARTS
+========================================================== */
+.heart {
+  position: fixed;
+  bottom: -50px;
+  font-size: 30px;
+  animation: float 8s infinite ease-in;
+  z-index: 1;
+  pointer-events: none;
+}
+@keyframes float {
+  0% { 
+    bottom: -50px;
+    opacity: 1;
+  }
+  100% { 
+    bottom: 110vh;
+    opacity: 0;
+  }
+}
+
+/* ==========================================================
+   CONFETTI
+========================================================== */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  z-index: 100;
+  animation: confettiFall 3s linear forwards;
+}
+@keyframes confettiFall {
+  to {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================
+   FRAME
 ========================================================== */
 #photoFrame {
   position: fixed;
@@ -72,6 +117,7 @@ body {
   border: 4px solid rgba(255,0,128,.6);
   box-shadow: inset 0 0 80px rgba(255,0,128,.4);
   z-index: 3;
+  pointer-events: none;
 }
 
 /* ==========================================================
@@ -80,7 +126,7 @@ body {
 #startScreen {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.6);
+  background: rgba(0,0,0,.85);
   z-index: 20;
   display: flex;
   justify-content: center;
@@ -88,7 +134,6 @@ body {
   flex-direction: column;
 }
 
-/* TYPING LOOP (CLEAN + PERFECT) */
 #introText {
   font-size: 2.6rem;
   font-weight: 800;
@@ -116,26 +161,101 @@ body {
   font-weight: 700;
   color: white;
   box-shadow: 0 0 20px #ff0080;
+  transition: transform 0.2s;
+}
+
+#startBtn:hover {
+  transform: scale(1.05);
 }
 
 /* ==========================================================
-   SLIDESHOW
+   SLIDESHOW CONTAINER - FIXED ALIGNMENT
 ========================================================== */
 #photoArea {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-#photoArea img {
+/* IMAGE WRAPPER FOR CONSISTENT POSITIONING */
+.image-wrapper {
   position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   opacity: 0;
-  transition: 1.6s ease;
-  max-height: 90vh;
-  max-width: 90vw;
+  transition: opacity 1.6s ease;
+}
+
+.image-wrapper.active {
+  opacity: 1;
+}
+
+.image-wrapper img {
+  max-width: 80vw;
+  max-height: 75vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(255,0,128,.5);
+  display: block;
+}
+
+/* Loading indicator for images */
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top-color: #ff0080;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error message styling */
+.error-message {
+  background: rgba(255,0,0,0.2);
+  border: 2px solid rgba(255,0,0,0.5);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 400px;
+}
+
+/* PHOTO CAPTION */
+.photo-caption {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.8);
+  padding: 15px 30px;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  opacity: 0;
+  transition: opacity 1s;
+  z-index: 5;
+  text-align: center;
+  max-width: 80%;
+  backdrop-filter: blur(10px);
+}
+
+.photo-caption.show {
+  opacity: 1;
 }
 
 /* FLASH */
@@ -144,8 +264,80 @@ body {
   inset: 0;
   background: radial-gradient(circle,#fff,rgba(255,0,128,.8));
   opacity: 0;
-  transition: .5s;
+  transition: opacity .5s;
   z-index: 4;
+  pointer-events: none;
+}
+
+/* ==========================================================
+   CONTROLS
+========================================================== */
+#controls {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: none;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#controls button {
+  background: rgba(255,0,128,.8);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+}
+
+#controls button:hover {
+  background: rgba(255,0,128,1);
+  transform: scale(1.05);
+}
+
+#controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#progress {
+  background: rgba(255,255,255,.2);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+/* VOLUME CONTROL */
+#volumeControl {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,0,0,.7);
+  padding: 10px 15px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+#volumeControl input[type="range"] {
+  width: 100px;
+  cursor: pointer;
+}
+
+#volumeIcon {
+  font-size: 20px;
 }
 
 /* ==========================================================
@@ -163,6 +355,24 @@ body {
   font-size: 3.2rem;
   color: white;
   font-weight: 900;
+  text-align: center;
+  padding: 20px;
+}
+
+#endingMessage p {
+  margin: 10px 0;
+  animation: fadeInUp 1s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==========================================================
@@ -179,26 +389,40 @@ body {
   }
   #photoFrame {
     width: 92vw;
-    height: 70vh;
+    height: 75vh;
     border-radius: 20px;
   }
-  #photoArea img {
-    max-width: 92vw;
+  .image-wrapper img {
+    max-width: 88vw;
     max-height: 70vh;
     border-radius: 16px;
   }
   #endingMessage {
-    font-size: 2rem;
-    text-align: center;
-    padding: 0 20px;
+    font-size: 1.8rem;
+  }
+  .photo-caption {
+    font-size: 1rem;
+    bottom: 110px;
+    padding: 12px 20px;
+  }
+  #controls {
+    bottom: 15px;
+    gap: 8px;
+  }
+  #controls button {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+  .heart {
+    font-size: 20px;
   }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
   #introText { font-size: 2rem; }
   #startBtn { font-size: 1.1rem; padding: 14px 32px; }
-  #photoFrame { width: 88vw; height: 75vh; }
-  #photoArea img { max-width: 88vw; max-height: 78vh; }
+  #photoFrame { width: 88vw; height: 78vh; }
+  .image-wrapper img { max-width: 85vw; max-height: 72vh; }
   #endingMessage { font-size: 2.6rem; }
 }
 
@@ -206,14 +430,14 @@ body {
   #introText { font-size: 2.2rem; }
   #startBtn { font-size: 1.1rem; padding: 14px 36px; }
   #photoFrame { width: 86vw; height: 80vh; }
-  #photoArea img { max-width: 86vw; max-height: 82vh; }
+  .image-wrapper img { max-width: 83vw; max-height: 74vh; }
   #endingMessage { font-size: 3rem; }
 }
 
 @media (min-width: 1025px) {
   #introText { font-size: 2.6rem; }
   #photoFrame { width: 85vw; height: 85vh; }
-  #photoArea img { max-width: 80vw; max-height: 85vh; }
+  .image-wrapper img { max-width: 80vw; max-height: 75vh; }
 }
 </style>
 </head>
@@ -232,10 +456,26 @@ body {
 </div>
 
 <div id="photoArea"></div>
+<div class="photo-caption" id="photoCaption"></div>
 
-<div id="endingMessage">I Love You Forever ❤️</div>
+<div id="controls">
+  <button id="prevBtn">← Previous</button>
+  <div id="progress"></div>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="nextBtn">Next →</button>
+</div>
 
-<audio id="birthdaySong" src="photos/happy-birthday-258264.mp3"></audio>
+<div id="volumeControl">
+  <span id="volumeIcon">🔊</span>
+  <input type="range" id="volumeSlider" min="0" max="100" value="70">
+</div>
+
+<div id="endingMessage">
+  <p>I Love You Forever ❤️</p>
+  <p style="font-size: 1.5rem; margin-top: 20px;">Happy Birthday Wasthu!</p>
+</div>
+
+<audio id="birthdaySong" src="photos/happy-birthday-258264.mp3" preload="auto"></audio>
 
 <script>
 /* ==========================================================
@@ -267,59 +507,267 @@ function typeLoop() {
 typeLoop();
 
 /* ==========================================================
-   SLIDESHOW
+   SLIDESHOW WITH CAPTIONS - IMPROVED ERROR HANDLING
 ========================================================== */
 const photos = [
-  "photos/sanjuala1.jpg",
-  "photos/sanjuala2.jpg",
-  "photos/sanjuala3.jpg",
-  "photos/sanjuala4.jpg",
-  "photos/sanjuala5.jpg",
-  "photos/sanjuala6.jpg",
-  "photos/sanjuala7.jpg"
+  { src: "photos/sanjuala1.jpg", caption: "Every moment with you is special ✨" },
+  { src: "photos/sanjuala2.jpg", caption: "Your smile brightens my day ☀️" },
+  { src: "photos/sanjuala3.jpg", caption: "Making beautiful memories together 💕" },
+  { src: "photos/sanjuala4.jpg", caption: "You make life so much better 🌟" },
+  { src: "photos/sanjuala5.jpg", caption: "Forever grateful for you 💖" },
+  { src: "photos/sanjuala6.jpg", caption: "My favorite person in the world 🌹" },
+  { src: "photos/sanjuala7.jpg", caption: "Here's to many more birthdays together 🎂" }
 ];
 
 let index = 0;
+let isPaused = false;
+let slideTimeout;
+let isPlaying = false;
+let loadedImages = [];
 
+// Preload all images
+function preloadImages() {
+  photos.forEach((photo, idx) => {
+    const img = new Image();
+    img.src = photo.src;
+    img.onload = () => {
+      console.log(`Image ${idx + 1} loaded successfully`);
+      loadedImages[idx] = true;
+    };
+    img.onerror = () => {
+      console.error(`Failed to load image: ${photo.src}`);
+      loadedImages[idx] = false;
+    };
+  });
+}
+
+// Call preload on page load
+preloadImages();
+
+/* ==========================================================
+   FLOATING HEARTS
+========================================================== */
+function createHeart() {
+  if (!isPlaying) return;
+  
+  const heart = document.createElement('div');
+  heart.className = 'heart';
+  heart.textContent = '❤️';
+  heart.style.left = Math.random() * 100 + 'vw';
+  heart.style.animationDuration = (Math.random() * 3 + 5) + 's';
+  document.body.appendChild(heart);
+  
+  setTimeout(() => heart.remove(), 8000);
+  setTimeout(createHeart, 2000);
+}
+
+/* ==========================================================
+   CONFETTI BURST
+========================================================== */
+function createConfetti() {
+  const colors = ['#ff0080', '#ff69b4', '#ff1493', '#ffd700', '#ff8c00', '#8b00ff'];
+  
+  for (let i = 0; i < 100; i++) {
+    setTimeout(() => {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      document.body.appendChild(confetti);
+      
+      setTimeout(() => confetti.remove(), 3000);
+    }, i * 20);
+  }
+}
+
+/* ==========================================================
+   START BUTTON
+========================================================== */
 document.getElementById("startBtn").onclick = () => {
-
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("photoFrame").style.display = "none";
-  document.getElementById("birthdaySong").play();
-
-  createStars();
-  showSlide();
+  createConfetti();
+  
+  setTimeout(() => {
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("photoFrame").style.display = "none";
+    document.getElementById("controls").style.display = "flex";
+    document.getElementById("volumeControl").style.display = "flex";
+    
+    const audio = document.getElementById("birthdaySong");
+    audio.volume = 0.7;
+    audio.play().catch(e => console.log("Audio autoplay prevented:", e));
+    
+    isPlaying = true;
+    createStars();
+    createHeart();
+    showSlide();
+  }, 500);
 };
 
+/* ==========================================================
+   SHOW SLIDE - IMPROVED WITH CONSISTENT POSITIONING
+========================================================== */
 function showSlide() {
   if (index === photos.length) {
     document.getElementById("photoArea").innerHTML = "";
+    document.getElementById("photoCaption").classList.remove("show");
+    document.getElementById("controls").style.display = "none";
     document.getElementById("endingMessage").style.display = "flex";
+    createConfetti();
     return;
   }
 
+  // Flash effect
   const fade = document.getElementById("whiteFade");
   fade.style.opacity = 1;
 
   setTimeout(() => {
-
     const area = document.getElementById("photoArea");
-    area.innerHTML = "";
+    
+    // Remove all existing wrappers
+    const existingWrappers = area.querySelectorAll('.image-wrapper');
+    existingWrappers.forEach(wrapper => {
+      wrapper.classList.remove('active');
+      setTimeout(() => wrapper.remove(), 1600);
+    });
 
+    // Create new wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'image-wrapper';
+
+    // Create loading spinner
+    const spinner = document.createElement('div');
+    spinner.className = 'loading-spinner';
+    wrapper.appendChild(spinner);
+
+    area.appendChild(wrapper);
+
+    // Load image
     const img = new Image();
-    img.src = photos[index];
-    img.loading = "lazy";
-    area.appendChild(img);
+    
+    img.onload = () => {
+      // Remove spinner
+      spinner.remove();
+      
+      // Add image to wrapper
+      wrapper.appendChild(img);
+      
+      // Activate wrapper
+      setTimeout(() => {
+        wrapper.classList.add('active');
+        showCaption(photos[index].caption);
+      }, 50);
+    };
 
-    setTimeout(() => { img.style.opacity = 1; }, 80);
+    img.onerror = () => {
+      // Remove spinner
+      spinner.remove();
+      
+      // Show error message
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.innerHTML = `
+        <p style="font-size: 1.5rem; margin-bottom: 10px;">📷</p>
+        <p>Image couldn't be loaded</p>
+        <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">${photos[index].src}</p>
+      `;
+      wrapper.appendChild(errorDiv);
+      wrapper.classList.add('active');
+      
+      // Still show caption
+      showCaption(photos[index].caption);
+    };
+
+    img.src = photos[index].src;
+    img.alt = photos[index].caption;
 
     fade.style.opacity = 0;
-
-    index++;
-    setTimeout(showSlide, 4000);
+    updateProgress();
+    
+    if (!isPaused) {
+      slideTimeout = setTimeout(nextSlide, 4000);
+    }
 
   }, 350);
 }
+
+function showCaption(text) {
+  const caption = document.getElementById("photoCaption");
+  caption.textContent = text;
+  caption.classList.remove('show');
+  
+  setTimeout(() => {
+    caption.classList.add('show');
+  }, 500);
+}
+
+function updateProgress() {
+  document.getElementById("progress").textContent = `${index + 1} of ${photos.length}`;
+  
+  // Update button states
+  document.getElementById("prevBtn").disabled = index === 0;
+  document.getElementById("nextBtn").disabled = index === photos.length - 1;
+}
+
+/* ==========================================================
+   NAVIGATION CONTROLS
+========================================================== */
+function nextSlide() {
+  clearTimeout(slideTimeout);
+  if (index < photos.length - 1) {
+    index++;
+    showSlide();
+  } else {
+    index = photos.length;
+    showSlide();
+  }
+}
+
+function prevSlide() {
+  clearTimeout(slideTimeout);
+  if (index > 0) {
+    index--;
+    showSlide();
+  }
+}
+
+document.getElementById("nextBtn").onclick = nextSlide;
+document.getElementById("prevBtn").onclick = prevSlide;
+
+document.getElementById("pauseBtn").onclick = () => {
+  isPaused = !isPaused;
+  const btn = document.getElementById("pauseBtn");
+  
+  if (isPaused) {
+    clearTimeout(slideTimeout);
+    btn.textContent = "▶ Play";
+  } else {
+    btn.textContent = "⏸ Pause";
+    if (index < photos.length) {
+      slideTimeout = setTimeout(nextSlide, 4000);
+    }
+  }
+};
+
+/* ==========================================================
+   VOLUME CONTROL
+========================================================== */
+const volumeSlider = document.getElementById("volumeSlider");
+const audio = document.getElementById("birthdaySong");
+
+volumeSlider.oninput = (e) => {
+  audio.volume = e.target.value / 100;
+  const icon = document.getElementById("volumeIcon");
+  
+  if (e.target.value == 0) {
+    icon.textContent = "🔇";
+  } else if (e.target.value < 50) {
+    icon.textContent = "🔉";
+  } else {
+    icon.textContent = "🔊";
+  }
+};
 
 /* ==========================================================
    STAR CREATION
@@ -331,8 +779,45 @@ function createStars() {
     s.className = "star";
     s.style.top = Math.random()*100 + "vh";
     s.style.left = Math.random()*100 + "vw";
+    s.style.animationDelay = Math.random() * 2 + "s";
     container.appendChild(s);
   }
+}
+
+/* ==========================================================
+   KEYBOARD NAVIGATION
+========================================================== */
+document.addEventListener('keydown', (e) => {
+  if (!isPlaying || index >= photos.length) return;
+  
+  if (e.key === 'ArrowRight') nextSlide();
+  if (e.key === 'ArrowLeft') prevSlide();
+  if (e.key === ' ') {
+    e.preventDefault();
+    document.getElementById("pauseBtn").click();
+  }
+});
+
+/* ==========================================================
+   TOUCH SWIPE FOR MOBILE
+========================================================== */
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+});
+
+document.addEventListener('touchend', (e) => {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipe();
+});
+
+function handleSwipe() {
+  if (!isPlaying || index >= photos.length) return;
+  
+  if (touchEndX < touchStartX - 50) nextSlide();
+  if (touchEndX > touchStartX + 50) prevSlide();
 }
 </script>
 
